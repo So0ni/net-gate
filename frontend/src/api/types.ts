@@ -16,9 +16,9 @@ export interface Device {
   alias: string
   ip_address?: string
   profile_id?: number
+  online?: boolean
   mark_id: number
   created_at?: string
-  profile?: Profile
 }
 
 export interface DeviceCreate {
@@ -41,4 +41,4 @@ export interface ProfileCreate {
   bandwidth_kbps?: number
 }
 
-export interface ProfileUpdate extends Partial<ProfileCreate> {}
+export type ProfileUpdate = Partial<ProfileCreate>

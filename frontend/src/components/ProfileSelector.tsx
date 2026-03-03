@@ -1,4 +1,4 @@
-import { Profile } from '../api/types'
+import type { Profile } from '../api/types'
 
 interface ProfileSelectorProps {
   profiles: Profile[]

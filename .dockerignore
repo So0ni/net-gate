@@ -1,0 +1,16 @@
+# Frontend
+frontend/node_modules
+frontend/dist
+
+# Backend: exclude venv and cache
+backend/.venv
+backend/__pycache__
+backend/**/__pycache__
+backend/**/*.pyc
+
+# Misc
+.git
+.gitignore
+.env
+data/
+*.md

@@ -1,9 +1,10 @@
 from datetime import datetime
+import re
 from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
-from schemas.profile import ProfileOut
+_MAC_RE = re.compile(r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 
 
 class DeviceCreate(BaseModel):
@@ -14,7 +15,10 @@ class DeviceCreate(BaseModel):
     @field_validator("mac_address")
     @classmethod
     def normalize_mac(cls, v: str) -> str:
-        return v.lower().strip()
+        normalized = v.lower().strip()
+        if not _MAC_RE.fullmatch(normalized):
+            raise ValueError("Invalid MAC address format, expected aa:bb:cc:dd:ee:ff")
+        return normalized
 
 
 class DeviceUpdate(BaseModel):
@@ -28,8 +32,8 @@ class DeviceOut(BaseModel):
     alias: str
     ip_address: Optional[str]
     profile_id: Optional[int]
+    online: bool = False
     mark_id: int
     created_at: Optional[datetime]
-    profile: Optional[ProfileOut] = None
 
     model_config = {"from_attributes": True}

@@ -5,7 +5,14 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 
-COPY frontend/ ./
+# Only copy source files needed for the build (not node_modules)
+COPY frontend/index.html ./
+COPY frontend/src/ ./src/
+COPY frontend/public/ ./public/
+COPY frontend/vite.config.ts ./
+COPY frontend/tailwind.config.js ./
+COPY frontend/postcss.config.js ./
+COPY frontend/tsconfig*.json ./
 RUN npm run build
 # Output: /app/frontend/dist/
 
@@ -33,7 +40,7 @@ RUN uv sync --frozen --no-dev
 # Copy backend source
 COPY backend/ ./
 
-# Copy built frontend into static/
+# Copy built frontend dist only (no source, no node_modules)
 COPY --from=frontend-builder /app/frontend/dist/ ./static/
 
 # Create data directory for SQLite
@@ -41,4 +48,4 @@ RUN mkdir -p /data
 
 EXPOSE 8080
 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "uv run uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]

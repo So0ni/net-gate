@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { isAxiosError } from 'axios'
 import type { Device, Profile, DeviceCreate } from '../api/types'
 import client from '../api/client'
 import { DeviceCard } from '../components/DeviceCard'
@@ -36,8 +37,8 @@ function RegisterModal({
       await client.post('/devices', body)
       onSuccess()
       onClose()
-    } catch (err: any) {
-      const detail = err.response?.data?.detail
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
       setError(detail === 'Device already registered' ? '该设备已注册' : (detail ?? '注册失败，请重试'))
     } finally {
       setLoading(false)
@@ -143,6 +144,11 @@ export default function Dashboard() {
     } else if (msg.event === 'device_deleted') {
       const { mac_address } = msg.data as { mac_address: string }
       setDevices((prev) => prev.filter((d) => d.mac_address !== mac_address))
+    } else if (msg.event === 'device_status_changed') {
+      const { mac_address, online } = msg.data as { mac_address: string; online: boolean }
+      setDevices((prev) =>
+        prev.map((d) => (d.mac_address === mac_address ? { ...d, online } : d))
+      )
     }
   })
 

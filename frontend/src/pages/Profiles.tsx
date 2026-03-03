@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { isAxiosError } from 'axios'
 import type { Profile, ProfileCreate, ProfileUpdate } from '../api/types'
 import client from '../api/client'
 
@@ -54,8 +55,9 @@ function ProfileModal({
       }
       onSuccess()
       onClose()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? '操作失败，请重试')
+    } catch (err: unknown) {
+      const detail = isAxiosError(err) ? err.response?.data?.detail : undefined
+      setError(detail ?? '操作失败，请重试')
     } finally {
       setLoading(false)
     }

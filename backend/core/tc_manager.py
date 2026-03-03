@@ -1,6 +1,6 @@
 import subprocess
 import logging
-from typing import Optional
+from typing import Sequence
 
 from config import settings
 
@@ -10,12 +10,21 @@ logger = logging.getLogger(__name__)
 _DEFAULT_CEIL_KBPS = 1_000_000  # 1 Gbit fallback
 
 
-def _run(cmd: str):
+def _run(args: Sequence[str], ignore_errors: bool = False):
+    cmd = " ".join(args)
     logger.debug("Running: %s", cmd)
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    result = subprocess.run(args, capture_output=True, text=True)
     if result.returncode != 0:
-        logger.error("Command failed: %s\nstderr: %s", cmd, result.stderr)
+        stderr = result.stderr.strip()
+        logger.error("Command failed: %s\nstderr: %s", cmd, stderr)
+        if not ignore_errors:
+            raise RuntimeError(stderr or f"command failed: {cmd}")
     return result
+
+
+def _validate_mark_id(mark_id: int):
+    if mark_id <= 0:
+        raise ValueError("mark_id must be > 0")
 
 
 def apply_profile(
@@ -31,6 +40,7 @@ def apply_profile(
     Class ID: 1:<mark_id>
     Leaf qdisc handle: <mark_id>:
     """
+    _validate_mark_id(mark_id)
     iface = settings.interface
     class_id = f"1:{mark_id}"
     handle = f"{mark_id}:"
@@ -43,8 +53,22 @@ def apply_profile(
 
     # HTB class
     _run(
-        f"tc class add dev {iface} parent 1: classid {class_id} "
-        f"htb rate {rate} ceil {_DEFAULT_CEIL_KBPS}kbit"
+        [
+            "tc",
+            "class",
+            "add",
+            "dev",
+            iface,
+            "parent",
+            "1:",
+            "classid",
+            class_id,
+            "htb",
+            "rate",
+            rate,
+            "ceil",
+            f"{_DEFAULT_CEIL_KBPS}kbit",
+        ]
     )
 
     # Build netem args
@@ -56,10 +80,22 @@ def apply_profile(
     elif loss_percent > 0:
         netem_args.append(f"loss {loss_percent}%")
 
-    netem_str = " ".join(netem_args) if netem_args else ""
-    _run(
-        f"tc qdisc add dev {iface} parent {class_id} handle {handle} netem {netem_str}"
-    )
+    if netem_args:
+        args = [
+            "tc",
+            "qdisc",
+            "add",
+            "dev",
+            iface,
+            "parent",
+            class_id,
+            "handle",
+            handle,
+            "netem",
+        ]
+        for entry in netem_args:
+            args.extend(entry.split())
+        _run(args)
 
     logger.info(
         "tc: applied profile to mark %d (latency=%dms jitter=%dms loss=%.1f%% bw=%s)",
@@ -69,9 +105,23 @@ def apply_profile(
 
 def remove_profile(mark_id: int):
     """Remove HTB class and netem qdisc for a device (ignore errors if not present)."""
+    _validate_mark_id(mark_id)
     iface = settings.interface
     class_id = f"1:{mark_id}"
     handle = f"{mark_id}:"
-    _run(f"tc qdisc del dev {iface} parent {class_id} handle {handle} 2>/dev/null || true")
-    _run(f"tc class del dev {iface} classid {class_id} 2>/dev/null || true")
+    _run(
+        [
+            "tc",
+            "qdisc",
+            "del",
+            "dev",
+            iface,
+            "parent",
+            class_id,
+            "handle",
+            handle,
+        ],
+        ignore_errors=True,
+    )
+    _run(["tc", "class", "del", "dev", iface, "classid", class_id], ignore_errors=True)
     logger.info("tc: removed profile for mark %d", mark_id)

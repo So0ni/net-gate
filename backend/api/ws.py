@@ -2,12 +2,14 @@
 WebSocket endpoint: /ws
 
 Broadcasts device-related events to all connected clients.
-Message format: { "event": "device_updated" | "device_deleted", "data": {...} }
+Message format:
+  {
+    "event": "device_updated" | "device_deleted" | "device_status_changed",
+    "data": {...}
+  }
 """
-import asyncio
 import json
 import logging
-from typing import Callable
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
