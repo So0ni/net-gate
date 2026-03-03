@@ -1,0 +1,14 @@
+services:
+  network-gate:
+    build: .
+    network_mode: host
+    privileged: true
+    environment:
+      - PORT=${PORT:-8080}
+      - INTERFACE=${INTERFACE:-eth0}
+      - DB_PATH=${DB_PATH:-/data/gate.db}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    # Uncomment to persist SQLite database outside the container:
+    # volumes:
+    #   - ./data:/data
+    restart: unless-stopped
