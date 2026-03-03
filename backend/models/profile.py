@@ -14,6 +14,8 @@ class Profile(Base):
     latency_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     jitter_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     loss_percent: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    bandwidth_kbps: Mapped[int] = mapped_column(Integer, nullable=False, default=0)  # 0 = unlimited
+    bandwidth_kbps: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0
+    )  # 0 = unlimited
     is_builtin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

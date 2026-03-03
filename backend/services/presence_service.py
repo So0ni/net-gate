@@ -4,6 +4,7 @@ presence_service.py
 Tracks device online status using ARP/neighbor table snapshots and
 broadcasts status changes over WebSocket.
 """
+
 import asyncio
 import logging
 import re
@@ -43,7 +44,9 @@ def _read_online_macs() -> set[str]:
     try:
         result = _run(["ip", "neigh", "show", "dev", settings.interface])
     except Exception:
-        logger.warning("Failed to read neighbor table on interface %s", settings.interface)
+        logger.warning(
+            "Failed to read neighbor table on interface %s", settings.interface
+        )
         return set()
     online: set[str] = set()
     for line in result.stdout.splitlines():
@@ -110,7 +113,9 @@ async def monitor_presence(interval_seconds: int = 5):
             with Session(engine) as session:
                 changes = refresh_presence_cache(session)
             for mac, online in changes:
-                await broadcast("device_status_changed", {"mac_address": mac, "online": online})
+                await broadcast(
+                    "device_status_changed", {"mac_address": mac, "online": online}
+                )
         except asyncio.CancelledError:
             raise
         except Exception:

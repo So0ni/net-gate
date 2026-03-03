@@ -36,11 +36,51 @@ def _seed_builtin_profiles(session: Session):
         return
 
     builtins = [
-        Profile(id=1, name="直连", latency_ms=0, jitter_ms=0, loss_percent=0.0, bandwidth_kbps=0, is_builtin=True),
-        Profile(id=2, name="4G",   latency_ms=30,  jitter_ms=10,  loss_percent=0.5, bandwidth_kbps=20480, is_builtin=True),
-        Profile(id=3, name="3G",   latency_ms=100, jitter_ms=20,  loss_percent=1.0, bandwidth_kbps=1024,  is_builtin=True),
-        Profile(id=4, name="弱网", latency_ms=400, jitter_ms=100, loss_percent=8.0, bandwidth_kbps=256,   is_builtin=True),
-        Profile(id=5, name="断网", latency_ms=0,   jitter_ms=0,   loss_percent=100.0, bandwidth_kbps=0,   is_builtin=True),
+        Profile(
+            id=1,
+            name="直连",
+            latency_ms=0,
+            jitter_ms=0,
+            loss_percent=0.0,
+            bandwidth_kbps=0,
+            is_builtin=True,
+        ),
+        Profile(
+            id=2,
+            name="4G",
+            latency_ms=30,
+            jitter_ms=10,
+            loss_percent=0.5,
+            bandwidth_kbps=20480,
+            is_builtin=True,
+        ),
+        Profile(
+            id=3,
+            name="3G",
+            latency_ms=100,
+            jitter_ms=20,
+            loss_percent=1.0,
+            bandwidth_kbps=1024,
+            is_builtin=True,
+        ),
+        Profile(
+            id=4,
+            name="弱网",
+            latency_ms=400,
+            jitter_ms=100,
+            loss_percent=8.0,
+            bandwidth_kbps=256,
+            is_builtin=True,
+        ),
+        Profile(
+            id=5,
+            name="断网",
+            latency_ms=0,
+            jitter_ms=0,
+            loss_percent=100.0,
+            bandwidth_kbps=0,
+            is_builtin=True,
+        ),
     ]
     session.add_all(builtins)
     session.commit()

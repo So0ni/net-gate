@@ -8,6 +8,7 @@ Message format:
     "data": {...}
   }
 """
+
 import json
 import logging
 

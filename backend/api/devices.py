@@ -28,7 +28,9 @@ def _normalize_mac_or_422(mac: str) -> str:
 
 def _to_device_out(device: Device) -> DeviceOut:
     payload = DeviceOut.model_validate(device)
-    return payload.model_copy(update={"online": presence_service.get_online(device.mac_address)})
+    return payload.model_copy(
+        update={"online": presence_service.get_online(device.mac_address)}
+    )
 
 
 @router.get("", response_model=list[DeviceOut])
@@ -57,7 +59,9 @@ async def create_device(body: DeviceCreate, session: Session = Depends(get_sessi
         session.commit()
     except Exception as exc:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Failed to program gateway rules") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to program gateway rules"
+        ) from exc
 
     session.refresh(device)
     output = _to_device_out(device)
@@ -66,7 +70,9 @@ async def create_device(body: DeviceCreate, session: Session = Depends(get_sessi
 
 
 @router.patch("/{mac}", response_model=DeviceOut)
-async def update_device(mac: str, body: DeviceUpdate, session: Session = Depends(get_session)):
+async def update_device(
+    mac: str, body: DeviceUpdate, session: Session = Depends(get_session)
+):
     normalized_mac = _normalize_mac_or_422(mac)
     device = session.get(Device, normalized_mac)
     if not device:
@@ -111,7 +117,9 @@ async def delete_device(mac: str, session: Session = Depends(get_session)):
         session.commit()
     except Exception as exc:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Failed to remove device policy") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to remove device policy"
+        ) from exc
 
     presence_service.forget_device(normalized_mac)
     await broadcast("device_deleted", {"mac_address": normalized_mac})

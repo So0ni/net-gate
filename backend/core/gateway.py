@@ -26,7 +26,21 @@ def init_gateway():
     # Remove existing root qdisc (ignore errors if none exists)
     _run(["tc", "qdisc", "del", "dev", iface, "root"], ignore_errors=True)
     # Add HTB root qdisc
-    _run(["tc", "qdisc", "add", "dev", iface, "root", "handle", "1:", "htb", "default", "9999"])
+    _run(
+        [
+            "tc",
+            "qdisc",
+            "add",
+            "dev",
+            iface,
+            "root",
+            "handle",
+            "1:",
+            "htb",
+            "default",
+            "9999",
+        ]
+    )
     # Default class: full speed (unthrottled for unmanaged devices)
     _run(
         [

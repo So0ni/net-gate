@@ -49,7 +49,9 @@ def apply_profile(
     remove_profile(mark_id)
 
     # Bandwidth: 0 means unlimited → use ceiling
-    rate = f"{bandwidth_kbps}kbit" if bandwidth_kbps > 0 else f"{_DEFAULT_CEIL_KBPS}kbit"
+    rate = (
+        f"{bandwidth_kbps}kbit" if bandwidth_kbps > 0 else f"{_DEFAULT_CEIL_KBPS}kbit"
+    )
 
     # HTB class
     _run(
@@ -99,7 +101,11 @@ def apply_profile(
 
     logger.info(
         "tc: applied profile to mark %d (latency=%dms jitter=%dms loss=%.1f%% bw=%s)",
-        mark_id, latency_ms, jitter_ms, loss_percent, rate,
+        mark_id,
+        latency_ms,
+        jitter_ms,
+        loss_percent,
+        rate,
     )
 
 

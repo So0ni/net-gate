@@ -4,6 +4,7 @@ policy_service.py
 Orchestrates the binding between a Device and a Profile,
 coordinating ebtables / iptables / tc operations.
 """
+
 import logging
 from sqlalchemy.orm import Session
 
@@ -23,7 +24,9 @@ def apply_device_policy(device: Device, profile: Profile):
         loss_percent=profile.loss_percent,
         bandwidth_kbps=profile.bandwidth_kbps,
     )
-    logger.info("Policy applied: device=%s profile=%s", device.mac_address, profile.name)
+    logger.info(
+        "Policy applied: device=%s profile=%s", device.mac_address, profile.name
+    )
 
 
 def remove_device_policy(device: Device):
@@ -44,7 +47,9 @@ def register_device_rules(device: Device):
         ebtables_manager.remove_device_mark(device.mac_address, device.mark_id)
         iptables_manager.remove_mark_to_class(device.mark_id)
         raise
-    logger.info("Rules registered: device=%s mark=%d", device.mac_address, device.mark_id)
+    logger.info(
+        "Rules registered: device=%s mark=%d", device.mac_address, device.mark_id
+    )
 
 
 def restore_all_policies(session: Session):
@@ -67,5 +72,7 @@ def restore_all_policies(session: Session):
                 if profile:
                     apply_device_policy(device, profile)
         except Exception:
-            logger.exception("Failed to restore policy for device=%s", device.mac_address)
+            logger.exception(
+                "Failed to restore policy for device=%s", device.mac_address
+            )
     logger.info("Restored policies for %d device(s)", len(devices))
