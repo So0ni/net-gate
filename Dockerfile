@@ -3,7 +3,7 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci --include=dev --include=optional
+RUN npm ci --include=dev
 
 # Only copy source files needed for the build (not node_modules)
 COPY frontend/index.html ./
